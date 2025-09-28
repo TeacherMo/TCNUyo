@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TCN Children Church Check-In System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .slide-in {
+            animation: slideIn 0.4s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-purple-50 min-h-screen">
+    <div class="container mx-auto px-4 py-6">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-purple-800 mb-2">🌟 TCN, Children Church, Uyo 🌟</h1>
+            <p class="text-gray-600">Safe & Simple Check-In System</p>
+        </div>
+
+        <!-- Navigation -->
+        <div class="flex flex-wrap justify-center gap-4 mb-8">
+            <button onclick="showView('dashboard')" class="nav-btn bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-full font-semibold transition-all duration-200 shadow-lg">
+                📊 Dashboard
+            </button>
+            <button onclick="showView('checkin')" class="nav-btn bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-full font-semibold transition-all duration-200 shadow-lg">
+                ✅ Check In/Out
+            </button>
+            <button onclick="showView('register')" class="nav-btn bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-full font-semibold transition-all duration-200 shadow-lg">
+                📝 New Registration
+            </button>
+            <button onclick="showView('birthdays')" class="nav-btn bg-pink-500 hover:bg-pink-600 text-white px-6 py-3 rounded-full font-semibold transition-all duration-200 shadow-lg">
+                🎂 Birthdays
+            </button>
+            <button onclick="showView('attendance')" class="nav-btn bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-full font-semibold transition-all duration-200 shadow-lg">
+                📈 Attendance
+            </button>
+            <button onclick="showView('teachers')" class="nav-btn bg-indigo-500 hover:bg-indigo-600 text-white px-6 py-3 rounded-full font-semibold transition-all duration-200 shadow-lg">
+                👩‍🏫 Teachers on Duty
+            </button>
+        </div>
+
+        <!-- Dashboard View -->
+        <div id="dashboard-view" class="view-section">
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Stats Cards -->
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
+                    <div class="flex items-center">
+                        <div class="text-3xl mr-4">👥</div>
+                        <div>
+                            <p class="text-gray-600 text-sm">Currently Checked In</p>
+                            <p class="text-2xl font-bold text-blue-600" id="checked-in-count">0</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
+                    <div class="flex items-center">
+                        <div class="text-3xl mr-4">📋</div>
+                        <div>
+                            <p class="text-gray-600 text-sm">Total Registered</p>
+                            <p class="text-2xl font-bold text-green-600" id="total-registered">0</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-pink-500">
+                    <div class="flex items-center">
+                        <div class="text-3xl mr-4">🎉</div>
+                        <div>
+                            <p class="text-gray-600 text-sm">Birthdays This Week</p>
+                            <p class="text-2xl font-bold text-pink-600" id="birthdays-count">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Currently Checked In List -->
+            <div class="mt-8 bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                    <span class="text-2xl mr-2">✅</span>
+                    Currently Checked In
+                </h3>
+                <div id="checked-in-list" class="space-y-3">
+                    <p class="text-gray-500 text-center py-8">No children currently checked in</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Check In/Out View -->
+        <div id="checkin-view" class="view-section hidden">
+            <div class="max-w-2xl mx-auto">
+                <div class="bg-white rounded-xl shadow-lg p-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Check In/Out System</h2>
+                    
+                    <!-- Search Bar -->
+                    <div class="mb-6">
+                        <label class="block text-gray-700 font-semibold mb-2">Search for Child</label>
+                        <div class="relative">
+                            <input type="text" id="search-input" placeholder="Type child's name..." 
+                                   class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none text-lg"
+                                   oninput="searchChildren()">
+                            <div class="absolute right-3 top-3 text-gray-400">🔍</div>
+                        </div>
+                    </div>
+
+                    <!-- Search Results -->
+                    <div id="search-results" class="space-y-3"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Registration View -->
+        <div id="register-view" class="view-section hidden">
+            <div class="max-w-2xl mx-auto">
+                <div class="bg-white rounded-xl shadow-lg p-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">New Child Registration</h2>
+                    
+                    <form id="registration-form" onsubmit="registerChild(event)">
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-gray-700 font-semibold mb-2">Full Name *</label>
+                                <input type="text" id="child-name" required 
+                                       class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-gray-700 font-semibold mb-2">Parent/Guardian Phone *</label>
+                                <input type="tel" id="parent-phone" required 
+                                       class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none">
+                            </div>
+                            
+                            <div class="grid md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-gray-700 font-semibold mb-2">Date of Birth *</label>
+                                    <input type="date" id="birth-date" required 
+                                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none"
+                                           onchange="calculateAge()">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-gray-700 font-semibold mb-2">Gender *</label>
+                                    <select id="child-gender" required 
+                                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none">
+                                        <option value="">Select Gender</option>
+                                        <option value="Boy">Boy</option>
+                                        <option value="Girl">Girl</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-gray-700 font-semibold mb-2">Age</label>
+                                    <input type="number" id="child-age" readonly 
+                                           class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-gray-50">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-gray-700 font-semibold mb-2">Emergency Contact (Optional)</label>
+                                <input type="text" id="emergency-contact" 
+                                       class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-gray-700 font-semibold mb-2">Special Notes (Allergies, etc.)</label>
+                                <textarea id="special-notes" rows="3" 
+                                          class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none"></textarea>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="w-full mt-8 bg-purple-500 hover:bg-purple-600 text-white py-4 rounded-lg font-bold text-lg transition-all duration-200 shadow-lg">
+                            Register Child 🌟
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attendance View -->
+        <div id="attendance-view" class="view-section hidden">
+            <div class="max-w-6xl mx-auto">
+                <div class="bg-white rounded-xl shadow-lg p-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center flex items-center justify-center">
+                        <span class="text-3xl mr-2">📈</span>
+                        Sunday Attendance Summary
+                    </h2>
+                    
+                    <!-- Current Sunday Stats -->
+                    <div class="grid md:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
+                            <div class="flex items-center">
+                                <div class="text-3xl mr-4">👥</div>
+                                <div>
+                                    <p class="text-blue-100 text-sm">Today's Total</p>
+                                    <p class="text-2xl font-bold" id="today-total">0</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white">
+                            <div class="flex items-center">
+                                <div class="text-3xl mr-4">👦</div>
+                                <div>
+                                    <p class="text-green-100 text-sm">Boys Today</p>
+                                    <p class="text-2xl font-bold" id="today-boys">0</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-pink-500 to-pink-600 rounded-xl shadow-lg p-6 text-white">
+                            <div class="flex items-center">
+                                <div class="text-3xl mr-4">👧</div>
+                                <div>
+                                    <p class="text-pink-100 text-sm">Girls Today</p>
+                                    <p class="text-2xl font-bold" id="today-girls">0</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white">
+                            <div class="flex items-center">
+                                <div class="text-3xl mr-4">📅</div>
+                                <div>
+                                    <p class="text-purple-100 text-sm">Date</p>
+                                    <p class="text-lg font-bold" id="today-date">Today</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Weekly Summary -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-2">📊</span>
+                            Weekly Summary
+                        </h3>
+                        <div class="bg-gray-50 rounded-lg p-6">
+                            <div class="grid md:grid-cols-3 gap-6">
+                                <div class="text-center">
+                                    <p class="text-3xl font-bold text-blue-600" id="week-average">0</p>
+                                    <p class="text-gray-600">Average Attendance</p>
+                                </div>
+                                <div class="text-center">
+                                    <p class="text-3xl font-bold text-green-600" id="week-boys-avg">0</p>
+                                    <p class="text-gray-600">Average Boys</p>
+                                </div>
+                                <div class="text-center">
+                                    <p class="text-3xl font-bold text-pink-600" id="week-girls-avg">0</p>
+                                    <p class="text-gray-600">Average Girls</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Attendance History -->
+                    <div class="mb-8">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-xl font-bold text-gray-800 flex items-center">
+                                <span class="text-2xl mr-2">📋</span>
+                                Attendance History
+                            </h3>
+                            <button onclick="recordTodayAttendance()" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold transition-all duration-200 shadow-lg">
+                                📝 Record Today's Attendance
+                            </button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full bg-white rounded-lg shadow">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Boys</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Girls</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Percentage</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="attendance-history" class="bg-white divide-y divide-gray-200">
+                                    <tr>
+                                        <td colspan="5" class="px-6 py-8 text-center text-gray-500">No attendance records yet</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Today's Attendees List -->
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-2">👥</span>
+                            Today's Attendees
+                        </h3>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <!-- Boys List -->
+                            <div class="bg-blue-50 rounded-lg p-6">
+                                <h4 class="text-lg font-bold text-blue-800 mb-3 flex items-center">
+                                    <span class="text-xl mr-2">👦</span>
+                                    Boys (<span id="boys-count">0</span>)
+                                </h4>
+                                <div id="boys-list" class="space-y-2">
+                                    <p class="text-gray-500">No boys checked in today</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Girls List -->
+                            <div class="bg-pink-50 rounded-lg p-6">
+                                <h4 class="text-lg font-bold text-pink-800 mb-3 flex items-center">
+                                    <span class="text-xl mr-2">👧</span>
+                                    Girls (<span id="girls-count">0</span>)
+                                </h4>
+                                <div id="girls-list" class="space-y-2">
+                                    <p class="text-gray-500">No girls checked in today</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Teachers View -->
+        <div id="teachers-view" class="view-section hidden">
+            <div class="max-w-6xl mx-auto">
+                <div class="bg-white rounded-xl shadow-lg p-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center flex items-center justify-center">
+                        <span class="text-3xl mr-2">👩‍🏫</span>
+                        Teachers on Duty
+                    </h2>
+                    
+                    <!-- Teacher Registration Form -->
+                    <div class="mb-8 bg-indigo-50 rounded-lg p-6">
+                        <h3 class="text-xl font-bold text-indigo-800 mb-4">Add New Teacher</h3>
+                        <form id="teacher-form" onsubmit="registerTeacher(event)" class="grid md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-gray-700 font-semibold mb-2">Teacher Name *</label>
+                                <input type="text" id="teacher-name" required 
+                                       class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-semibold mb-2">Phone Number *</label>
+                                <input type="tel" id="teacher-phone" required 
+                                       class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:outline-none">
+                            </div>
+                            <div class="flex items-end">
+                                <button type="submit" class="w-full bg-indigo-500 hover:bg-indigo-600 text-white py-3 rounded-lg font-semibold transition-all duration-200 shadow-lg">
+                                    Add Teacher 👩‍🏫
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Today's Duty Stats -->
+                    <div class="grid md:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-xl shadow-lg p-6 text-white">
+                            <div class="flex items-center">
+                                <div class="text-3xl mr-4">👥</div>
+                                <div>
+                                    <p class="text-indigo-100 text-sm">Teachers on Duty</p>
+                                    <p class="text-2xl font-bold" id="teachers-on-duty">0</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white">
+                            <div class="flex items-center">
+                                <div class="text-3xl mr-4">✅</div>
+                                <div>
+                                    <p class="text-green-100 text-sm">Checked In</p>
+                                    <p class="text-2xl font-bold" id="teachers-checked-in">0</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white">
+                            <div class="flex items-center">
+                                <div class="text-3xl mr-4">📅</div>
+                                <div>
+                                    <p class="text-purple-100 text-sm">Date</p>
+                                    <p class="text-lg font-bold" id="duty-date">Today</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Teacher Check-In Section -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-2">🔍</span>
+                            Teacher Check-In
+                        </h3>
+                        <div class="bg-gray-50 rounded-lg p-6">
+                            <div class="mb-4">
+                                <label class="block text-gray-700 font-semibold mb-2">Search Teacher</label>
+                                <div class="relative">
+                                    <input type="text" id="teacher-search" placeholder="Type teacher's name..." 
+                                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:outline-none text-lg"
+                                           oninput="searchTeachers()">
+                                    <div class="absolute right-3 top-3 text-gray-400">🔍</div>
+                                </div>
+                            </div>
+                            <div id="teacher-search-results" class="space-y-3"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Currently on Duty -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-2">✅</span>
+                            Currently on Duty
+                        </h3>
+                        <div id="teachers-on-duty-list" class="space-y-3">
+                            <p class="text-gray-500 text-center py-8">No teachers currently on duty</p>
+                        </div>
+                    </div>
+                    
+                    <!-- All Registered Teachers -->
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-2">📋</span>
+                            All Registered Teachers
+                        </h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full bg-white rounded-lg shadow">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="all-teachers-list" class="bg-white divide-y divide-gray-200">
+                                    <tr>
+                                        <td colspan="4" class="px-6 py-8 text-center text-gray-500">No teachers registered yet</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Birthdays View -->
+        <div id="birthdays-view" class="view-section hidden">
+            <div class="max-w-4xl mx-auto">
+                <div class="bg-white rounded-xl shadow-lg p-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center flex items-center justify-center">
+                        <span class="text-3xl mr-2">🎂</span>
+                        Birthday Reminders
+                    </h2>
+                    
+                    <!-- Today's Birthdays -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-bold text-pink-600 mb-4">🎉 Today's Birthdays</h3>
+                        <div id="todays-birthdays" class="space-y-3">
+                            <p class="text-gray-500">No birthdays today</p>
+                        </div>
+                    </div>
+                    
+                    <!-- This Week's Birthdays -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-bold text-blue-600 mb-4">📅 This Week's Birthdays</h3>
+                        <div id="week-birthdays" class="space-y-3">
+                            <p class="text-gray-500">No birthdays this week</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Upcoming Birthdays -->
+                    <div>
+                        <h3 class="text-xl font-bold text-green-600 mb-4">🔮 Upcoming This Month</h3>
+                        <div id="month-birthdays" class="space-y-3">
+                            <p class="text-gray-500">No upcoming birthdays this month</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // In-memory database simulation (in production, this would be a real database)
+        let children = JSON.parse(localStorage.getItem('children') || '[]');
+        let checkedInChildren = JSON.parse(localStorage.getItem('checkedIn') || '[]');
+        let attendanceHistory = JSON.parse(localStorage.getItem('attendanceHistory') || '[]');
+        let teachers = JSON.parse(localStorage.getItem('teachers') || '[]');
+        let teachersOnDuty = JSON.parse(localStorage.getItem('teachersOnDuty') || '[]');
+
+        // Production ready - starts with empty database
+
+        function saveData() {
+            localStorage.setItem('children', JSON.stringify(children));
+            localStorage.setItem('checkedIn', JSON.stringify(checkedInChildren));
+            localStorage.setItem('attendanceHistory', JSON.stringify(attendanceHistory));
+            localStorage.setItem('teachers', JSON.stringify(teachers));
+            localStorage.setItem('teachersOnDuty', JSON.stringify(teachersOnDuty));
+        }
+
+        function showView(viewName) {
+            // Hide all views
+            document.querySelectorAll('.view-section').forEach(view => {
+                view.classList.add('hidden');
+            });
+            
+            // Show selected view
+            document.getElementById(viewName + '-view').classList.remove('hidden');
+            document.getElementById(viewName + '-view').classList.add('fade-in');
+            
+            // Update navigation buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('ring-4', 'ring-opacity-50');
+            });
+            event.target.classList.add('ring-4', 'ring-opacity-50');
+            
+            // Refresh data for specific views
+            if (viewName === 'dashboard') {
+                updateDashboard();
+            } else if (viewName === 'birthdays') {
+                updateBirthdays();
+            } else if (viewName === 'attendance') {
+                updateAttendance();
+            } else if (viewName === 'teachers') {
+                updateTeachers();
+            }
+        }
+
+        function updateDashboard() {
+            document.getElementById('checked-in-count').textContent = checkedInChildren.length;
+            document.getElementById('total-registered').textContent = children.length;
+            
+            // Count birthdays this week
+            const today = new Date();
+            const weekFromNow = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
+            const birthdaysThisWeek = children.filter(child => {
+                const birthDate = new Date(child.birthDate);
+                const thisYearBirthday = new Date(today.getFullYear(), birthDate.getMonth(), birthDate.getDate());
+                return thisYearBirthday >= today && thisYearBirthday <= weekFromNow;
+            });
+            document.getElementById('birthdays-count').textContent = birthdaysThisWeek.length;
+            
+            // Update checked-in list
+            const checkedInList = document.getElementById('checked-in-list');
+            if (checkedInChildren.length === 0) {
+                checkedInList.innerHTML = '<p class="text-gray-500 text-center py-8">No children currently checked in</p>';
+            } else {
+                checkedInList.innerHTML = checkedInChildren.map(child => `
+                    <div class="flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-200 slide-in">
+                        <div class="flex items-center">
+                            <div class="text-2xl mr-3">👦</div>
+                            <div>
+                                <p class="font-semibold text-gray-800">${child.name}</p>
+                                <p class="text-sm text-gray-600">Age ${child.age} • Checked in at ${child.checkInTime}</p>
+                            </div>
+                        </div>
+                        <button onclick="checkOut(${child.id})" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold transition-all duration-200">
+                            Check Out
+                        </button>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function searchChildren() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const results = document.getElementById('search-results');
+            
+            if (query.length < 2) {
+                results.innerHTML = '';
+                return;
+            }
+            
+            const matches = children.filter(child => 
+                child.name.toLowerCase().includes(query)
+            );
+            
+            if (matches.length === 0) {
+                results.innerHTML = '<p class="text-gray-500 text-center py-4">No children found</p>';
+                return;
+            }
+            
+            results.innerHTML = matches.map(child => {
+                const isCheckedIn = checkedInChildren.some(c => c.id === child.id);
+                return `
+                    <div class="p-4 border-2 border-gray-200 rounded-lg hover:border-blue-300 transition-all duration-200 slide-in">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="text-2xl mr-3">${isCheckedIn ? '✅' : '👦'}</div>
+                                <div>
+                                    <p class="font-semibold text-gray-800">${child.name}</p>
+                                    <p class="text-sm text-gray-600">Age ${child.age} • ${child.parentPhone}</p>
+                                    ${child.specialNotes ? `<p class="text-sm text-orange-600">⚠️ ${child.specialNotes}</p>` : ''}
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                ${isCheckedIn ? 
+                                    `<button onclick="checkOut(${child.id})" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold transition-all duration-200">Check Out</button>` :
+                                    `<button onclick="checkIn(${child.id})" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-semibold transition-all duration-200">Check In</button>`
+                                }
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function checkIn(childId) {
+            const child = children.find(c => c.id === childId);
+            if (child && !checkedInChildren.some(c => c.id === childId)) {
+                const now = new Date();
+                checkedInChildren.push({
+                    ...child,
+                    checkInTime: now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                });
+                saveData();
+                searchChildren(); // Refresh search results
+                showNotification(`${child.name} checked in successfully! 🎉`, 'success');
+            }
+        }
+
+        function checkOut(childId) {
+            const childIndex = checkedInChildren.findIndex(c => c.id === childId);
+            if (childIndex !== -1) {
+                const child = checkedInChildren[childIndex];
+                checkedInChildren.splice(childIndex, 1);
+                saveData();
+                updateDashboard();
+                searchChildren(); // Refresh search results
+                showNotification(`${child.name} checked out successfully! 👋`, 'info');
+            }
+        }
+
+        function calculateAge() {
+            const birthDate = new Date(document.getElementById('birth-date').value);
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+            
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            
+            document.getElementById('child-age').value = age;
+        }
+
+        function registerChild(event) {
+            event.preventDefault();
+            
+            const newChild = {
+                id: Date.now(),
+                name: document.getElementById('child-name').value,
+                parentPhone: document.getElementById('parent-phone').value,
+                birthDate: document.getElementById('birth-date').value,
+                age: parseInt(document.getElementById('child-age').value),
+                gender: document.getElementById('child-gender').value,
+                emergencyContact: document.getElementById('emergency-contact').value,
+                specialNotes: document.getElementById('special-notes').value,
+                registrationDate: new Date().toISOString().split('T')[0]
+            };
+            
+            children.push(newChild);
+            saveData();
+            
+            // Reset form
+            document.getElementById('registration-form').reset();
+            
+            showNotification(`${newChild.name} registered successfully! 🌟`, 'success');
+            
+            // Switch to dashboard
+            showView('dashboard');
+        }
+
+        function updateBirthdays() {
+            const today = new Date();
+            const todayStr = today.toISOString().split('T')[0];
+            
+            // Today's birthdays
+            const todaysBirthdays = children.filter(child => {
+                const birthDate = new Date(child.birthDate);
+                const thisYearBirthday = new Date(today.getFullYear(), birthDate.getMonth(), birthDate.getDate());
+                return thisYearBirthday.toISOString().split('T')[0] === todayStr;
+            });
+            
+            // This week's birthdays
+            const weekFromNow = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
+            const weekBirthdays = children.filter(child => {
+                const birthDate = new Date(child.birthDate);
+                const thisYearBirthday = new Date(today.getFullYear(), birthDate.getMonth(), birthDate.getDate());
+                return thisYearBirthday > today && thisYearBirthday <= weekFromNow;
+            });
+            
+            // This month's birthdays
+            const monthBirthdays = children.filter(child => {
+                const birthDate = new Date(child.birthDate);
+                const thisYearBirthday = new Date(today.getFullYear(), birthDate.getMonth(), birthDate.getDate());
+                return thisYearBirthday > weekFromNow && thisYearBirthday.getMonth() === today.getMonth();
+            });
+            
+            // Update displays
+            updateBirthdaySection('todays-birthdays', todaysBirthdays, 'No birthdays today');
+            updateBirthdaySection('week-birthdays', weekBirthdays, 'No birthdays this week');
+            updateBirthdaySection('month-birthdays', monthBirthdays, 'No upcoming birthdays this month');
+        }
+
+        function updateBirthdaySection(elementId, birthdays, emptyMessage) {
+            const element = document.getElementById(elementId);
+            
+            if (birthdays.length === 0) {
+                element.innerHTML = `<p class="text-gray-500">${emptyMessage}</p>`;
+                return;
+            }
+            
+            element.innerHTML = birthdays.map(child => {
+                const birthDate = new Date(child.birthDate);
+                const age = new Date().getFullYear() - birthDate.getFullYear();
+                const birthdayStr = birthDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+                
+                return `
+                    <div class="p-4 bg-pink-50 rounded-lg border border-pink-200 slide-in">
+                        <div class="flex items-center">
+                            <div class="text-3xl mr-4">🎂</div>
+                            <div>
+                                <p class="font-semibold text-gray-800">${child.name}</p>
+                                <p class="text-sm text-gray-600">Turning ${age} on ${birthdayStr}</p>
+                                <p class="text-sm text-gray-500">${child.parentPhone}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateAttendance() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('today-date').textContent = new Date().toLocaleDateString('en-US', { 
+                weekday: 'short', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+            
+            // Get today's checked-in children with gender info
+            const todayAttendees = checkedInChildren.map(child => {
+                const fullChild = children.find(c => c.id === child.id);
+                return { ...child, gender: fullChild?.gender || 'Unknown' };
+            });
+            
+            const totalToday = todayAttendees.length;
+            const boysToday = todayAttendees.filter(child => child.gender === 'Boy').length;
+            const girlsToday = todayAttendees.filter(child => child.gender === 'Girl').length;
+            
+            // Update today's stats
+            document.getElementById('today-total').textContent = totalToday;
+            document.getElementById('today-boys').textContent = boysToday;
+            document.getElementById('today-girls').textContent = girlsToday;
+            
+            // Update weekly averages (last 4 weeks)
+            const fourWeeksAgo = new Date();
+            fourWeeksAgo.setDate(fourWeeksAgo.getDate() - 28);
+            const recentHistory = attendanceHistory.filter(record => 
+                new Date(record.date) >= fourWeeksAgo
+            );
+            
+            if (recentHistory.length > 0) {
+                const avgTotal = Math.round(recentHistory.reduce((sum, record) => sum + record.total, 0) / recentHistory.length);
+                const avgBoys = Math.round(recentHistory.reduce((sum, record) => sum + record.boys, 0) / recentHistory.length);
+                const avgGirls = Math.round(recentHistory.reduce((sum, record) => sum + record.girls, 0) / recentHistory.length);
+                
+                document.getElementById('week-average').textContent = avgTotal;
+                document.getElementById('week-boys-avg').textContent = avgBoys;
+                document.getElementById('week-girls-avg').textContent = avgGirls;
+            }
+            
+            // Update attendance history table
+            updateAttendanceHistory();
+            
+            // Update today's attendees lists
+            updateTodayAttendees(todayAttendees);
+        }
+        
+        function updateAttendanceHistory() {
+            const historyBody = document.getElementById('attendance-history');
+            
+            if (attendanceHistory.length === 0) {
+                historyBody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">No attendance records yet</td></tr>';
+                return;
+            }
+            
+            // Sort by date (most recent first)
+            const sortedHistory = [...attendanceHistory].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            historyBody.innerHTML = sortedHistory.map(record => {
+                const percentage = children.length > 0 ? Math.round((record.total / children.length) * 100) : 0;
+                const date = new Date(record.date).toLocaleDateString('en-US', { 
+                    weekday: 'short', 
+                    month: 'short', 
+                    day: 'numeric',
+                    year: 'numeric'
+                });
+                
+                return `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${date}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">${record.total}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-blue-600">${record.boys}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-pink-600">${record.girls}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${percentage}%</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        function updateTodayAttendees(attendees) {
+            const boys = attendees.filter(child => child.gender === 'Boy');
+            const girls = attendees.filter(child => child.gender === 'Girl');
+            
+            // Update counts
+            document.getElementById('boys-count').textContent = boys.length;
+            document.getElementById('girls-count').textContent = girls.length;
+            
+            // Update boys list
+            const boysList = document.getElementById('boys-list');
+            if (boys.length === 0) {
+                boysList.innerHTML = '<p class="text-gray-500">No boys checked in today</p>';
+            } else {
+                boysList.innerHTML = boys.map(boy => `
+                    <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-blue-200">
+                        <div class="flex items-center">
+                            <div class="text-lg mr-3">👦</div>
+                            <div>
+                                <p class="font-semibold text-gray-800">${boy.name}</p>
+                                <p class="text-sm text-gray-600">Age ${boy.age}</p>
+                            </div>
+                        </div>
+                        <span class="text-xs text-gray-500">${boy.checkInTime}</span>
+                    </div>
+                `).join('');
+            }
+            
+            // Update girls list
+            const girlsList = document.getElementById('girls-list');
+            if (girls.length === 0) {
+                girlsList.innerHTML = '<p class="text-gray-500">No girls checked in today</p>';
+            } else {
+                girlsList.innerHTML = girls.map(girl => `
+                    <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-pink-200">
+                        <div class="flex items-center">
+                            <div class="text-lg mr-3">👧</div>
+                            <div>
+                                <p class="font-semibold text-gray-800">${girl.name}</p>
+                                <p class="text-sm text-gray-600">Age ${girl.age}</p>
+                            </div>
+                        </div>
+                        <span class="text-xs text-gray-500">${girl.checkInTime}</span>
+                    </div>
+                `).join('');
+            }
+        }
+        
+        function recordTodayAttendance() {
+            const today = new Date().toISOString().split('T')[0];
+            
+            // Check if today's attendance is already recorded
+            const existingRecord = attendanceHistory.find(record => record.date === today);
+            if (existingRecord) {
+                showNotification('Today\'s attendance is already recorded! 📝', 'info');
+                return;
+            }
+            
+            // Get today's attendees with gender info
+            const todayAttendees = checkedInChildren.map(child => {
+                const fullChild = children.find(c => c.id === child.id);
+                return { ...child, gender: fullChild?.gender || 'Unknown' };
+            });
+            
+            const total = todayAttendees.length;
+            const boys = todayAttendees.filter(child => child.gender === 'Boy').length;
+            const girls = todayAttendees.filter(child => child.gender === 'Girl').length;
+            
+            if (total === 0) {
+                showNotification('No children are checked in to record! ⚠️', 'error');
+                return;
+            }
+            
+            // Add to attendance history
+            attendanceHistory.push({
+                date: today,
+                total: total,
+                boys: boys,
+                girls: girls,
+                attendees: todayAttendees.map(child => ({
+                    id: child.id,
+                    name: child.name,
+                    gender: child.gender,
+                    age: child.age
+                }))
+            });
+            
+            saveData();
+            updateAttendance();
+            showNotification(`Attendance recorded: ${total} children (${boys} boys, ${girls} girls) 📊`, 'success');
+        }
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
+                type === 'success' ? 'bg-green-500' : 
+                type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+            } text-white font-semibold fade-in`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        function registerTeacher(event) {
+            event.preventDefault();
+            
+            const newTeacher = {
+                id: Date.now(),
+                name: document.getElementById('teacher-name').value,
+                phone: document.getElementById('teacher-phone').value,
+                registrationDate: new Date().toISOString().split('T')[0]
+            };
+            
+            teachers.push(newTeacher);
+            saveData();
+            
+            // Reset form
+            document.getElementById('teacher-form').reset();
+            
+            showNotification(`${newTeacher.name} registered as teacher! 👩‍🏫`, 'success');
+            updateTeachers();
+        }
+        
+        function searchTeachers() {
+            const query = document.getElementById('teacher-search').value.toLowerCase();
+            const results = document.getElementById('teacher-search-results');
+            
+            if (query.length < 2) {
+                results.innerHTML = '';
+                return;
+            }
+            
+            const matches = teachers.filter(teacher => 
+                teacher.name.toLowerCase().includes(query)
+            );
+            
+            if (matches.length === 0) {
+                results.innerHTML = '<p class="text-gray-500 text-center py-4">No teachers found</p>';
+                return;
+            }
+            
+            results.innerHTML = matches.map(teacher => {
+                const isOnDuty = teachersOnDuty.some(t => t.id === teacher.id);
+                return `
+                    <div class="p-4 border-2 border-gray-200 rounded-lg hover:border-indigo-300 transition-all duration-200 slide-in">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="text-2xl mr-3">${isOnDuty ? '✅' : '👩‍🏫'}</div>
+                                <div>
+                                    <p class="font-semibold text-gray-800">${teacher.name}</p>
+                                    <p class="text-sm text-gray-600">${teacher.phone}</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                ${isOnDuty ? 
+                                    `<button onclick="teacherCheckOut(${teacher.id})" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold transition-all duration-200">Check Out</button>` :
+                                    `<button onclick="teacherCheckIn(${teacher.id})" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-semibold transition-all duration-200">Check In</button>`
+                                }
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function teacherCheckIn(teacherId) {
+            const teacher = teachers.find(t => t.id === teacherId);
+            if (teacher && !teachersOnDuty.some(t => t.id === teacherId)) {
+                const now = new Date();
+                teachersOnDuty.push({
+                    ...teacher,
+                    checkInTime: now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                });
+                saveData();
+                searchTeachers();
+                updateTeachers();
+                showNotification(`${teacher.name} checked in for duty! 🎉`, 'success');
+            }
+        }
+        
+        function teacherCheckOut(teacherId) {
+            const teacherIndex = teachersOnDuty.findIndex(t => t.id === teacherId);
+            if (teacherIndex !== -1) {
+                const teacher = teachersOnDuty[teacherIndex];
+                teachersOnDuty.splice(teacherIndex, 1);
+                saveData();
+                searchTeachers();
+                updateTeachers();
+                showNotification(`${teacher.name} checked out from duty! 👋`, 'info');
+            }
+        }
+        
+        function updateTeachers() {
+            const today = new Date().toLocaleDateString('en-US', { 
+                weekday: 'short', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+            document.getElementById('duty-date').textContent = today;
+            
+            // Update stats
+            document.getElementById('teachers-on-duty').textContent = teachersOnDuty.length;
+            document.getElementById('teachers-checked-in').textContent = teachersOnDuty.length;
+            
+            // Update currently on duty list
+            const onDutyList = document.getElementById('teachers-on-duty-list');
+            if (teachersOnDuty.length === 0) {
+                onDutyList.innerHTML = '<p class="text-gray-500 text-center py-8">No teachers currently on duty</p>';
+            } else {
+                onDutyList.innerHTML = teachersOnDuty.map(teacher => `
+                    <div class="flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-200 slide-in">
+                        <div class="flex items-center">
+                            <div class="text-2xl mr-3">👩‍🏫</div>
+                            <div>
+                                <p class="font-semibold text-gray-800">${teacher.name}</p>
+                                <p class="text-sm text-gray-600">${teacher.phone} • Checked in at ${teacher.checkInTime}</p>
+                            </div>
+                        </div>
+                        <button onclick="teacherCheckOut(${teacher.id})" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold transition-all duration-200">
+                            Check Out
+                        </button>
+                    </div>
+                `).join('');
+            }
+            
+            // Update all teachers table
+            const allTeachersList = document.getElementById('all-teachers-list');
+            if (teachers.length === 0) {
+                allTeachersList.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-gray-500">No teachers registered yet</td></tr>';
+            } else {
+                allTeachersList.innerHTML = teachers.map(teacher => {
+                    const isOnDuty = teachersOnDuty.some(t => t.id === teacher.id);
+                    return `
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${teacher.name}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${teacher.phone}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                    isOnDuty ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                                }">
+                                    ${isOnDuty ? 'On Duty' : 'Off Duty'}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                ${isOnDuty ? 
+                                    `<button onclick="teacherCheckOut(${teacher.id})" class="text-red-600 hover:text-red-900">Check Out</button>` :
+                                    `<button onclick="teacherCheckIn(${teacher.id})" class="text-green-600 hover:text-green-900">Check In</button>`
+                                }
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+        }
+
+        // Initialize dashboard on load
+        document.addEventListener('DOMContentLoaded', function() {
+            showView('dashboard');
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9860ce9444c294bb',t:'MTc1OTAzNjk4Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
